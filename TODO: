@@ -1,0 +1,30 @@
+LEGAL
+Liability Waiver
+Photo Release
+Hacker Code of Conduct
+
+DATES
+Start date
+Confirm date
+
+Update school list?
+
+APPLICATION
+dropbox link to upload resume
+Remove Travel reimbursement section - Done
+Remove needs h/w section - Done
+Remove needs hosting section - Done
+Im guessing no shirts either - Done
+Remove Food - Done
+
+Update demographics to exclude admins - Done
+
+ISSUES:
+1. The first login after accept shows invalid date in users dashboard. 
+Cant repro in incognito tab. Can repro in other phones. Refresh makes it go away.
+2. Fix timezone display issues in admin pages
+Done
+3. Fix confirmation deadline update
+Done
+
+# sudo chown -Rh <username> .meteor/local

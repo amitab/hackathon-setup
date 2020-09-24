@@ -1,0 +1,127 @@
+version: "3"
+services:
+  # node:
+  #   container_name: node
+  #   build:
+  #     context: .
+  #     dockerfile: ./Dockerfile_quill
+  #   environment: 
+  #     - NODE_ENV=development
+  #   ports: 
+  #     - 3000:3000
+  #   volumes: 
+  #     - ./quill:/usr/app/src
+  #   depends_on: 
+  #     - mongo
+  #     - mongo-express
+
+  # helpq:
+  #   container_name: helpq
+  #   build:
+  #     context: .
+  #     dockerfile: ./Dockerfile_helpq
+  #   env_file: ./helpqueue/.env
+  #   ports: 
+  #     - 3000:3000
+  #   volumes: 
+  #     - ./helpqueue:/usr/app/src
+    # depends_on: 
+    #   - mongo
+    #   - mongo-express
+
+  gavel:
+    container_name: gavel
+    build: 
+      context: .
+      dockerfile: gavel.Dockerfile
+    env_file: ./gavel/.env
+    entrypoint: 
+      - "/bin/sh"
+      - "-c"
+      - "sleep 5 && python initialize.py && python runserver.py"
+    ports: 
+      - 3000:3000
+    volumes: 
+      - ./gavel:/usr/app/src
+    depends_on: 
+      - pgadmin
+      - db
+      - redis
+
+  celery:
+    build:
+      context: .
+      dockerfile: gavel.Dockerfile
+    env_file: ./gavel/.env
+    command: "celery -A gavel:celery worker -E"
+    user: nobody
+    links:
+        - redis
+    volumes:
+        - ./gavel:/usr/app/src:ro
+
+  redis:
+    image: redis:alpine
+    hostname: redis
+    command: redis-server --requirepass sOmE_sEcUrE_pAsS
+    ports:
+      - 6379:6379
+    volumes:
+      - $PWD/redis-data:/var/lib/redis
+      - $PWD/redis.conf:/usr/local/etc/redis/redis.conf
+    environment:
+      - REDIS_REPLICATION_MODE=master
+
+  # mongo:
+  #   image: mongo
+  #   hostname: mongo
+  #   restart: always
+  #   environment:
+  #     MONGO_INITDB_ROOT_USERNAME: root
+  #     MONGO_INITDB_ROOT_PASSWORD: example
+
+  # mongo-express:
+  #   image: mongo-express
+  #   restart: always
+  #   ports:
+  #     - 8081:8081
+  #   environment:
+  #     ME_CONFIG_MONGODB_ADMINUSERNAME: root
+  #     ME_CONFIG_MONGODB_ADMINPASSWORD: example
+
+  db:
+    image: postgres:13
+    container_name: db
+    hostname: db
+    ports:
+      - 5432:5432
+    env_file: .env
+    # volumes:
+    #   - my_dbdata:/var/lib/postgresql/data
+    #   - ./sql:/sql
+    #   - ./createtables.sh:/docker-entrypoint-initdb.d/createtables.sh
+  
+  pgadmin:
+    container_name: pgadmin
+    image: dpage/pgadmin4
+    env_file: .env
+    volumes:
+        - pgadmin:/root/.pgadmin
+        - ./servers.json:/pgadmin4/servers.json
+    ports:
+      - 5050:80
+    entrypoint: 
+      - "/bin/sh"
+      - "-c"
+      - "/bin/echo 'db:5432:postgres:admin:admin' > /tmp/pgpassfile && chmod 600 /tmp/pgpassfile && /entrypoint.sh"
+
+volumes:
+  # my_dbdata:
+  pgadmin:
+
+# networks:
+#   node_net:
+#     ipam:
+#       driver: default
+#       config:
+#         - subnet: 172.28.0.0/16
