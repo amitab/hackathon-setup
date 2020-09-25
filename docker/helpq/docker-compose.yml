@@ -6,15 +6,15 @@ services:
     hostname: db
     ports:
       - 5432:5432
-    env_file: .env
+    env_file: ../postgres/.env
   
   pgadmin:
     container_name: pgadmin
     image: dpage/pgadmin4
-    env_file: .env
+    env_file: ../postgres/.env
     volumes:
         - pgadmin:/root/.pgadmin
-        - ./servers.json:/pgadmin4/servers.json
+        - ../postgres/servers.json:/pgadmin4/servers.json
     ports:
       - 5050:80
     entrypoint: 
@@ -25,13 +25,13 @@ services:
   helpq:
     container_name: helpq
     build:
-      context: .
-      dockerfile: ./helpq.Dockerfile
-    env_file: ./helpqueue/.env
+      context: ../..
+      dockerfile: ./docker/helpq/Dockerfile
+    env_file: .env
     ports: 
       - 3000:3000
     volumes: 
-      - ./helpqueue:/usr/app/src
+      - ../../helpqueue:/usr/app/src
     depends_on: 
       - db
       - pgadmin
