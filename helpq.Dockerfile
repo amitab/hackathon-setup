@@ -22,5 +22,5 @@ RUN mkdir client
 COPY ./helpqueue/client/package.json client/package.json
 RUN cd client && yarn
 
-CMD ["sleep", "infinity"]
-#CMD ["/bin/bash", "-c", "sleep 3 && python manage.py db upgrade && yarn run dev"]
+# CMD ["sleep", "infinity"]
+# CMD ["/bin/bash", "-c", "sleep 5 && python manage.py db upgrade && yarn run dev"]

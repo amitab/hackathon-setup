@@ -1,0 +1,44 @@
+version: "3"
+services:
+  db:
+    image: postgres:13
+    container_name: db
+    hostname: db
+    ports:
+      - 5432:5432
+    env_file: .env
+  
+  pgadmin:
+    container_name: pgadmin
+    image: dpage/pgadmin4
+    env_file: .env
+    volumes:
+        - pgadmin:/root/.pgadmin
+        - ./servers.json:/pgadmin4/servers.json
+    ports:
+      - 5050:80
+    entrypoint: 
+      - "/bin/sh"
+      - "-c"
+      - "/bin/echo 'db:5432:postgres:admin:admin' > /tmp/pgpassfile && chmod 600 /tmp/pgpassfile && /entrypoint.sh"
+
+  helpq:
+    container_name: helpq
+    build:
+      context: .
+      dockerfile: ./helpq.Dockerfile
+    env_file: ./helpqueue/.env
+    ports: 
+      - 3000:3000
+    volumes: 
+      - ./helpqueue:/usr/app/src
+    depends_on: 
+      - db
+      - pgadmin
+    entrypoint: 
+      - "/bin/bash"
+      - "-c"
+      - "sleep 5 && python manage.py db upgrade && yarn run dev"
+    
+volumes:
+  pgadmin:
